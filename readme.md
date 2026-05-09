@@ -13,7 +13,7 @@
 4. **PortFast** → En puertos de usuarios finales (PCs)
 5. **Port-Security** → Restringe qué MACs pueden conectarse
 
-### **2. **Seguridad Avanzada (Protección de Capa 2)
+### **2. Seguridad Avanzada (Protección de Capa 2)**
 
 1. **DAI** - Proteja la red contra ataques de ARP Spoofing
 2. **DHCP Snooping** - Evite que alguien conecte un router propio y empiece a dar IPs falsas
