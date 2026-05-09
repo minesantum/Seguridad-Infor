@@ -208,13 +208,9 @@ switchport trunk allowed vlan add 10,20,99
 
 > Las VLANs segmentan la red lógicamente, separando el tráfico aunque estén en el mismo switch
 >
-> - ⚠ Declarar las inter vlan con la dirección en el Server DHCP
-> - int vlan sin ip en el resto para saber que existen y usarlo como puente
-> - No ponerle IP a todas las inter VLAN en todos los swicthes, tienes que crear solo la VLAN, no su IP
-> - La IP que pongas en default-gateway la sacas de una de las VLAN, la que elijas para ello, será la VLAN de Administración
+> - La IP que pongas en default-gateway la sacas de una de las VLAN, la que elijas para ello acabada en `1`, será la VLAN de Administración (`...99`)
 > - Las int vlan con ip address se declaran en los switches de capa3 acabando en `.2 y .3`
 > - Y en los swicthes normales int vlan con ip address .2 o más, la 99 solamente y poner `default-gateway` con int vlan y la ip correspondiente
-> - No dará ping al principio por que habrá que hacer HSRP
 
 ---
 
@@ -724,7 +720,7 @@ no shutdown
 
 ------
 
-**"Configure una ruta por defecto hacia el Router ISP para tener salida a Internet."**
+**"Configure una ruta por defecto hacia el Router ISP para tener salida a Internet - ⚠ Esto se hace en NAT"**
 
 ```
 ip route 0.0.0.0 0.0.0.0 192.168.255.1
@@ -739,8 +735,8 @@ ip route 0.0.0.0 0.0.0.0 192.168.255.1
 
 ```
 interface g0/1
- no switchport
- ip address 192.168.255.2 255.255.255.252
+no switchport
+ip address 192.168.255.2 255.255.255.252
 ```
 
 - `no switchport` → desactiva las funciones de switch (VLANs, STP) y permite poner una IP directamente en el puerto físico.
