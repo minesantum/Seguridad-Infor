@@ -209,8 +209,8 @@ switchport trunk allowed vlan add 10,20,99
 > Las VLANs segmentan la red lógicamente, separando el tráfico aunque estén en el mismo switch
 >
 > - La IP que pongas en default-gateway la sacas de una de las VLAN, la que elijas para ello acabada en `1`, será la VLAN de Administración (`...99`)
-> - Las int vlan con ip address se declaran en los switches de capa3 acabando en `.2 y .3`
-> - Y en los swicthes normales int vlan con ip address .2 o más, la 99 solamente y poner `default-gateway` con int vlan y la ip correspondiente
+> - En los swicthes int vlan con ip address .2 o más, la 99 solamente y poner `default-gateway` con int vlan y la ip correspondiente
+> - Solo pones IP si el dispositivo necesita "ser visto" en esa red (para gestionar o para enrutar). Si solo debe pasar paquetes de un lado a otro, no lleva IP
 
 ---
 
