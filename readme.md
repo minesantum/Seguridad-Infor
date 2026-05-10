@@ -454,7 +454,7 @@ ip dhcp snooping vlan 10,20
 
 ```
 interface fa0/1					#Interfaz que va al Servidor DHCP desde Switch
-ip dhcp snooping trust
+ip dhcp snooping trust			 #Solo se aplica en interfaces físicas como fa0/1
 ip arp inspection trust
 ```
 
@@ -556,9 +556,8 @@ Entras en las dos subinterfaces que creaste para el Router-on-a-Stick
 interface gig0/1.10
 
 int vlan 10 --- ELEGIR PRIMERO
-ip address 192.168.10.2 255.255.255.0 # La .1 ya la tienes declarada como gateway
-
 encapsulation dot1Q 10
+ip address 192.168.10.2 255.255.255.0 # La .1 ya la tienes declarada como gateway
 
 standby 1 ip 192.168.10.1           # Gateway Virtual VLAN 10
 standby 1 priority 110              # Ponerlo siempre en el primer router
@@ -594,12 +593,14 @@ standby 2 preempt                   # Solo se pone en el Router de mayor priorid
 # HSRP para la VLAN 10
 interface gig0/0.10
 ip address 192.168.10.3 255.255.255.0
+
 standby 1 ip 192.168.10.1           # Mismo grupo y misma IP Virtual
 standby 1 priority 109			   # Puedes ponerlo o no
 
 # HSRP para la VLAN 20
 interface gig0/0.20
 ip address 192.168.20.3 255.255.255.0
+
 standby 2 ip 192.168.20.1           # Mismo grupo y misma IP Virtual
 standby 2 priority 109			   # Puedes ponerlo o no
 ```
@@ -681,10 +682,12 @@ En el Switch de Capa 3 de **Respaldo**
 interface vlan 10
  ip address 192.168.10.3 255.255.255.0 # IP real distinta
  standby 1 ip 192.168.10.1             # Misma IP - Gateway (la que usan los PCs)
+ standby 1 priority 109			   # Puedes ponerlo o no
  
 interface vlan 20
  ip address 192.168.20.3 255.255.255.0
  standby 2 ip 192.168.20.1
+ standby 2 priority 109			   # Puedes ponerlo o no
 ```
 
 ------
@@ -888,13 +891,15 @@ show ip interface brief
 > - ⚠ Si haces esto, no haces enrutamiento estático
 > - Válido para Switches de Capa 3 con el puerto en `no switchport`
 > - ⚠ No hace falta que estén los routers conectados directamente, **puede haber un switch de por medio**
-> - Tener en cuenta que publicar las IP de las redes que van al servidor de internet (las 200), es una mala práctica 
+> - **Tener en cuenta que publicar las IP de las redes que van al servidor de internet (las 200), es una mala práctica, tendrías suspenso**
+> - Recuerda que si cambias el `router-id` en un proceso OSPF que ya está funcionando, los cambios no se aplican hasta que reinicies el proceso con `clear ip ospf process`
+> - `passive-interface GigabitEthernet0/2`: Asegúrate de que esa es la interfaz que va a los PCs. Si pones como pasiva la interfaz que conecta con otro router, OSPF dejará de funcionar entre ellos, pones entonces `no passive-interface GigabitEthernet0/2`
 
 Comprobar que están declaradas las interfaces
 
 ```
 int g0/1
-Para Switch de Capa 3# no switchport
+no switchport							#Para Switch de Capa 3
 ip address 192.168.255.2 255.255.255.0
 ```
 
@@ -1085,12 +1090,12 @@ Ahora entras al "cerebro" del protocolo para decirle qué redes quieres que los 
 ```
 router ospf 1
 router-id 1.1.1.1  (Opcional: es el nombre del router para OSPF)
-network 192.168.10.0 0.0.0.3 area 0
+network 192.168.10.0 0.0.0.255 area 0
 ```
 
-- **network**: La red que quieres anunciar.
-- **0.0.0.3**: Es la **Wildcard** (lo contrario a la máscara). Si tu máscara es 255.255.255.252, la wildcard es 0.0.0.3.
-- **area 0**: El área principal (el "corazón" de OSPF).
+- **network**: La red que quieres anunciar
+- **0.0.0.255**: Es la **Wildcard** (lo contrario a la máscara). Si tu máscara es 255.255.255.0, la wildcard es 0.0.0.255
+- **area 0**: El área principal (el "corazón" de OSPF)
 
 ### 3. Compartir la ruta de Internet con los demás
 
@@ -1630,6 +1635,8 @@ show logging
 
 Para configurar una ACL, siempre tienes que pensar en el **primer punto de contacto** entre el paquete y el router
 
+> - **El "Implicit Deny":** Recuerda siempre que al final de cada ACL hay un `deny ip any any` invisible. Si creas una ACL para denegar una sola IP y no pones un `permit ip any any` al final, bloquearás **todo** el tráfico de la red
+
 - **ACL Estándar:** Se coloca lo más cerca posible del **destino**
 - **ACL Extendida:** Se coloca lo más cerca posible del **origen**
 
@@ -2006,7 +2013,7 @@ ip nat inside/outside source list [1] interface [g0/1] overload
 ```
 
 - `overload` = PAT. Toda la LAN comparte una sola IP pública usando puertos diferentes
-- **interface - la de salida y se pone inside**
+- **interface - la de salida y se pone `ip nat inside...`**
 - El `overload` al final es lo que permite que muchos PCs usen una sola IP pública (técnicamente se llama PAT)
 - ⚠ Permitimos de dentro hacia afuera, si por error incluyes la red pública en esa ACL, el NAT hará cosas raras y podrías perder la conexión al router desde fuera
 
@@ -2266,6 +2273,7 @@ show flash:
 | **Prefijo CIDR** | **Máscara de  Subred** | **Máscara  Wildcard (ACL)** |
 | :--------------: | :--------------------: | :-------------------------: |
 |     **/32**      |    255.255.255.255     |  **0.0.0.0** (Host único)   |
+|     **/31**      |    255.255.255.254     |         **0.0.0.1**         |
 |     **/30**      |    255.255.255.252     |         **0.0.0.3**         |
 |     **/29**      |    255.255.255.248     |         **0.0.0.7**         |
 |     **/28**      |    255.255.255.240     |        **0.0.0.15**         |
