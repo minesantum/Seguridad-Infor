@@ -1,8 +1,4 @@
-
-
 # Chuleta CCNA
-
-------
 
 ## Orden de configuración recomendado
 
@@ -478,7 +474,8 @@ ip dhcp snooping limit rate 10
 
 - `limit rate 10` Si un puerto envía más de 10 peticiones DHCP por segundo, se apaga (evita ataques de denegación de servicio)
 - `interface range` Son los puertos **Untrusted** que van a los PC's
-- No se puede hacer por `interface vlan` este comando
+- No se puede hacer por `interface vlan`
+- No se puede hacer por subinterfaz `int fa0/1.10`
 
 "**Ver tabla de DHCP Snooping**"
 
@@ -2294,8 +2291,6 @@ show flash:
 
 ### Buscar en la tabla el cuántas menos líneas mejor , cubrir el rango sumando con la máscara wildcard, no priorizar la división
 
-> .32 a la .63 usas la 0.0.0.31 del 32 por que ya lo cubre, por que va desde el 31 hasta el 0.0.0.64 en un mismo viaje
-
 | **Tamaño del Bloque** | **Máscara de Subred** | **Prefijo**   **CIDR** | **Máscara Wildcard** |                   **¿Qué IP la admite?**                   |
 | :-------------------: | :-------------------: | :--------------------: | :------------------: | :--------------------------------------------------------: |
 |      **256 + 1**      |     255.255.255.0     |          /24           |    0.0.0.**255**     |                    Múltiplo de **256**                     |
@@ -2307,46 +2302,3 @@ show flash:
 |       **4 + 1**       |    255.255.255.252    |          /30           |     0.0.0.**3**      |      Múltiplo de **4**  (4,8,12,16,20,24,32,36,40,44)      |
 |       **2 + 1**       |    255.255.255.254    |          /31           |     0.0.0.**1**      |         Solo si la IP es **par** (.2,  .4, .6...)          |
 |       **1 + 1**       |    255.255.255.255    |          /32           |     **0.0.0.0**      |                     Múltiplo de **1**                      |
-
-# Apuntes
-
-- **Raramente he puesto Gateway a los switches**
-- Asignar una IP sobrante de la VLAN a la interfaz del router (Normalmente acabada en .2, la .1 ya la diste en los switches), no declarar en la interface VLAN o a la hora de hacer OSPF, otros routers no la detectarán, es decir, la única manera de hacerle OSPF a una VLAN, es poner la IP de la VLAN a la interfaz del router, ya que OSPF solo funciona detectando interfaces, la "interface vlan 10" es indetectable para OSPF ya que es virtual
-- Existe el comando reload
-
-Si decides que tu **VLAN de Administración** es la 10
-
-| **Elemento**                   | **Dirección IP**   |
-| ------------------------------ | ------------------ |
-| Red de la VLAN 10              | `192.168.10.0 /24` |
-| IP del Router (Gateway)        | `192.168.10.1`     |
-| IP del Switch (Administración) | `192.168.10.2`     |
-
-**En el switch configurarías:**
-
-1. La IP `192.168.10.2` dentro de la `interface vlan 10`
-2. El comando `ip default-gateway 192.168.10.1`
-
-## En el Router (Gateway)
-
-Deja la `.1` quieta, es la más importante porque es la salida de los PCs
-
-- **IP:** `192.168.10.1`
-
-## En los Switches
-
-Cambia las IPs de las `interface vlan` para que sean únicas
-
-- **Switch0:** `192.168.10.2`
-- **Switch1:** `192.168.10.3`
-- **Switch2:** `192.168.10.4`
-
-------
-
-# Conectar Switch Capa 3 con Router Normal
-
-## Los puertos de un switch CORE son, por defecto, de Capa 2 (esperan VLANs). Para que acepten una IP y hablen con un router, tienes que "convertirlos":
-
-- Entra en la interfaz del Switch de Capa 3 que conecta al router
-- Lanza el comando: `no switchport`
-- Asegúrate de que la IP esté puesta ahí: `ip address ...`
