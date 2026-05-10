@@ -122,7 +122,7 @@ show etherchannel summary
 
 # Trunking - Switch
 
-> Un enlace troncal transporta el tráfico de múltiples VLANs entre switches.
+> Un enlace troncal transporta el tráfico de múltiples VLANs
 
 ---
 
