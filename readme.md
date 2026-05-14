@@ -1648,12 +1648,14 @@ Para configurar una ACL, siempre tienes que pensar en el **primer punto de conta
 
 - **DNS:** Usa siempre **UDP** port 53 (casi nunca TCP)
 - **HTTP y HTTPS:** Puerto 80 (HTTP) y 443 (HTTPS) son siempre **TCP**
-- **FTP:** Siempre son dos puertos, **20 y 21**, y siempre **TCP**
+- **FTP:** Siempre son dos puertos, **20 y 21**, y siempre **TCP** o poner `eq ftp` al final
 - **SSH:** Puerto 22 **TCP**
 - **Telnet**: Puerto 23 **TCP**
 - **ICMP**: No tiene puertos, solo pone icmp
 - **SMTP**: Puerto 25 **TCP**
 - **POP3**: Puerto 100 **TCP**
+- **IMAP** Seguro: Puerto 993 **TCP**
+- **IMAP** No seguro: Puerto 143 **TCP**
 - **TFTP**: Puerto 69 **UDP**
 
 ### Consejos:
