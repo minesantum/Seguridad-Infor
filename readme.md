@@ -227,6 +227,7 @@ switchport mode access
 switchport access vlan 10
 ```
 - `mode access` → puerto para dispositivo final (PC, impresora...)
+- Al ejecutar el comando `switchport access vlan 10`, estás **sacando** por completo ese puerto de la VLAN 1 y metiéndolo exclusivamente en la VLAN 10, por eso es modo access y no trunk
 
 ---
 
