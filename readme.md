@@ -25,7 +25,7 @@
 ### **4. Servicios**
 1. **DHCP** → Reparte IPs automáticamente - Hacer ip helper-address luego
 2. **NTP** → Sincroniza el reloj de los equipos
-3. **Syslog** → 
+3. **Syslog** → Monitorización y Gestión de Logs
 
 ### **5. Seguridad**
 1. **ACL** → Filtra tráfico
@@ -477,6 +477,14 @@ ip dhcp snooping limit rate 10
 - `interface range` Son los puertos **Untrusted** que van a los PC's
 - No se puede hacer por `interface vlan`
 - No se puede hacer por subinterfaz `int fa0/1.10`
+
+⚠ Los ordenadores no cogen IP del Server DHCP - Tienes que hacer esto
+
+Por defecto, cuando activas DHCP Snooping, el switch se vuelve "demasiado cotilla" y le mete un código (la Option 82) a las peticiones de los PCs. Al hacer esto en Packet Tracer, **el propio switch bloquea el tráfico** y los PCs se quedan sin IP
+
+```
+no ip dhcp snooping information option
+```
 
 "**Ver tabla de DHCP Snooping**"
 
