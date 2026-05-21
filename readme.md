@@ -91,7 +91,8 @@ channel-group 1 mode on
 
 ---
 
-**"Configure el port-channel 1 como enlace troncal."**
+**"Configure el port-channel 1 como enlace troncal"**
+
 ```
 interface port-channel 1
 switchport mode trunk
@@ -124,6 +125,7 @@ show etherchannel summary
 
 **"Configure el puerto como enlace troncal."**
 ```
+interface fa0/1
 switchport mode trunk
 ```
 
@@ -548,7 +550,7 @@ El **HSRP** puede tener hasta **255 dispositivos** en un mismo grupo, pero en el
 > - Puede hacerse en subinterfaces de Router and Stick
 > - Nunca usar una IP ya declarada a mano en otro dispositivo en el comando stanby 1
 > - ⚠ Si tienes **HSRP mal:** El PC tiene su IP correcta que recibe por DHCP, pero el `ping` a su Gateway falla, pero puede dar ping al servidor final de fuera de internet gracias a NAT
-> - **HSRP bien** Una vez cambiadas las IP's a 2 o 3 o 4 en los cores, una vez hecho el HSRP, ya va el ping
+> - **HSRP bien** Una vez cambiadas las IP's a 2 o 3 o 4 en los cores, una vez hecho el HSRP, **ya va el ping**
 
 ## Escenario 1 - Routers conectados a un Switch Router and Stick
 
@@ -579,12 +581,10 @@ standby 2 priority 110              # Ponerlo siempre en el primer router
 standby 2 preempt                   # Solo se pone en el Router de mayor prioridad
 ```
 
-- Como ya declaraste la `.1` en la ip de la interface vlan 10 en el Switch - Ahora tienes que declarar la `.2` en el comando de ip address, que es la que queda libre y lo mismo con todas las VLAN
-
 - La regla de la **prioridad**:
 
   - **En el Router Principal (DHCP Server):** Pones `standby 1 priority 110` para que saque una nota alta y sea el "delegado" (Active).
-  - **En el Router de Respaldo:** **No pones nada**. Por defecto, todos los routers tienen una prioridad de **100**. Como 110 es mayor que 100, el Router DHCP siempre ganará.
+  - **En el Router de Respaldo:** **No pones nada**. Por defecto, todos los routers tienen una prioridad de **100**. Como 110 es mayor que 100, el Router DHCP siempre ganará
 
 - ¿Qué hace exactamente **preempt**?
 
@@ -599,19 +599,16 @@ standby 2 preempt                   # Solo se pone en el Router de mayor priorid
 # HSRP para la VLAN 10
 interface gig0/0.10
 ip address 192.168.10.3 255.255.255.0
-
-standby 1 ip 192.168.10.1           # Mismo grupo y misma IP Virtual
-standby 1 priority 109			   # Puedes ponerlo o no
+standby 1 ip 192.168.10.1               # Mismo grupo y misma IP Virtual
+standby 1 priority 109			       # Puedes ponerlo o no
 
 # HSRP para la VLAN 20
 interface gig0/0.20
 ip address 192.168.20.3 255.255.255.0
-
-standby 2 ip 192.168.20.1           # Mismo grupo y misma IP Virtual
-standby 2 priority 109			   # Puedes ponerlo o no
+standby 2 ip 192.168.20.1          	    # Mismo grupo y misma IP Virtual
+standby 2 priority 109			   	   # Puedes ponerlo o no
 ```
 
-- Declaras la 192.168.10.3, ya que la `.3` la declaraste en el Router principal
 - ⚠ ip address - No puede haber dos iguales en ningún Router o Switch
 
 ## Al rato de acabar las configuraciones, la consola enviará mensajes como
@@ -635,7 +632,7 @@ Gig         1    110 P Active   local           192.168.10.3    192.168.10.1
 Gig         2    110 P Active   local           192.168.20.3    192.168.20.1  
 ```
 
-Ahora vete al **Router** secundario**, pon el mismo comando `show standby brief` - El State en **Stanby**
+Ahora vete al **Router** secundario, pon el mismo comando `show standby brief` - El State en **Stanby**
 
 ```
 do show standby brief
@@ -915,7 +912,7 @@ ip address 192.168.255.2 255.255.255.0
 Comenzamos por poner
 
 ```
-show ip route
+do show ip route
 ```
 
 ## En un **Switch de Capa 3** al poner el comando si ves esto
@@ -968,12 +965,11 @@ network 192.168.255.0 0.0.0.3 area 0
 
 - ⚠En ocasiones, no olvidar declarar las IP's de las VLAN si no están en el listado, esto solo en caso que se haya hecho el inter vlan y puesto la IP en el **dispositivo en cuestión**
 - Tener en cuenta no publicar la IP's 200+ por que hay que distinguir entre las redes privadas y las públicas
-- 
 
-Para finalizar, podremos ver con una O las rutas que han aprendido por OSPF
+Para finalzar, podremos ver con una O las rutas que han aprendido por OSPF
 
 ```
-show ip route 
+do show ip route 
      	172.16.0.0/16 is variably subnetted, 5 subnets, 2 masks
 O       172.16.1.0/24 [110/3] via 192.168.255.5, 00:01:38, GigabitEthernet0/0
 C       172.16.2.0/24 is directly connected, GigabitEthernet0/1.20
@@ -1389,10 +1385,13 @@ Lo que el ejercicio te quiere decir es que el **Router ISP** es el único que ti
 
 Configuración en el Router normal
 
+- ⚠ Entre el server DHCP y los ordenadores hay un router o switch de capa 3 **de por medio**, si es directo, no hace falta hacer nada
+- Hacer en caso de que los ordenadores no reciban la IP por DHCP
+
 ```
-interface g0/1.20 - DISPOSITIVO ACTUAL - interfaz que va hacia dispositivo
-interface g0/1 - DISPOSITIVO ACTUAL - interfaz que va hacia dispositivo
-ip helper-address 192.168.60.1 - DISPOSITIVO ANTERIOR - IP de interfaz que va hacia dispositivo
+interface g0/1.20 - DISPOSITIVO ACTUAL - interfaz que va hacia dispositivos
+interface g0/1 - DISPOSITIVO ACTUAL - interfaz que va hacia dispositivos
+ip helper-address 192.168.60.1 - DISPOSITIVO ANTERIOR - IP de interfaz que va hacia dispositivos
 ```
 
 - interface GigabitEthernet0/1.20 - En caso de que sea Trunk y venga de Router and Stick
@@ -2183,8 +2182,8 @@ crypto key generate rsa
 Elegir uno u otro comando
 
 ```
-username admin privilege 15 secret admin 
-username admin password admin
+username admin privilege 15 secret cisco 
+username cisco password cisco
 ```
 - `privilege 15` → acceso completo (nivel máximo)
 - `secret` → contraseña cifrada con MD5 (mejor que `password`)
@@ -2223,6 +2222,32 @@ show ip ssh
 show ssh
 show running-config | begin line vty
 ```
+
+**Conectarse por SSH y probarlo**
+
+Para administrar un switch de Capa 2 por SSH, debes crear la `interface vlan` correspondiente a la VLAN de administración (habitualmente la VLAN 99), asignarle una IP fija de esa misma subred y configurar el `ip default-gateway` apuntando al HSRP (CORE) para que el switch sepa responderte desde otras redes
+
+Levantar la interfaz de la VLAN de Administración (ej. la 99) en el Dispositivo en cuestión
+
+```
+interface vlan 99
+ip address 192.168.199.10 255.255.255.0  # IP fija libre de esa VLAN
+no shutdown
+```
+
+Decirle al switch a dónde enviar la respuesta (Default Gateway)
+
+```
+ip default-gateway 192.168.199.1  # <-- La IP Virtual del HSRP de la VLAN 99
+```
+
+Una vez que el switch tenga esa IP configurada, entras en la terminal de cualquier PC o router de la red y ejecutas el comando de conexión
+
+```
+ssh -l admin 192.168.199.10
+```
+
+
 
 ------
 
